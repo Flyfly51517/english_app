@@ -2,297 +2,453 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Mimi English</title>
 
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" href="icon.png" type="image/png">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+
 <style>
-    /* 全域設定 */
+    /* --- 基礎設定 --- */
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
     :root { 
-        --primary: #FF9A9E;    
-        --secondary: #FECFEF;  
-        --accent: #a18cd1;     
-        --text: #555;
-        --btn-line: #06C755;
-        --btn-wrong: #FF9F43;
+        --bg-body: #F3F4F6;
+        --bg-card: #FFFFFF;
+        --btn-purple: linear-gradient(90deg, #a18cd1 0%, #fbc2eb 100%);
+        --btn-shadow: 0 4px 15px rgba(161, 140, 209, 0.4);
+        --btn-orange: linear-gradient(90deg, #ff9a9e 0%, #fecfef 100%);
+        --btn-grey: #dfe6e9;
+        --text-main: #2d3436;
+        --text-sub: #636e72;
+        --radius-card: 24px;
+        --radius-btn: 50px;
     }
     
     body { 
-        font-family: "Miku", "微軟正黑體", sans-serif;
-        /* 夢幻漸層背景 */
-        background: linear-gradient(120deg, #a18cd1 0%, #fbc2eb 100%);
+        font-family: "Varela Round", "Miku", "微軟正黑體", sans-serif;
+        background: var(--bg-body);
         min-height: 100vh;
         margin: 0; 
-        padding: 20px 15px; 
-        color: var(--text); 
+        padding: 20px 15px calc(20px + env(safe-area-inset-bottom));
+        color: var(--text-main);
+        line-height: 1.5;
     }
 
     .container { 
         max-width: 600px; 
         margin: 0 auto; 
-        background: rgba(255, 255, 255, 0.95); 
+        background: var(--bg-card); 
         padding: 25px; 
-        border-radius: 25px; 
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+        border-radius: var(--radius-card); 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
         position: relative;
         overflow: hidden;
+        min-height: 650px;
+        display: flex;
+        flex-direction: column;
     }
-    
-    /* 標題區 (圖片拿掉了，只留文字) */
-    header { text-align: center; margin-bottom: 25px; border-bottom: 2px dashed #ffe0e6; padding-bottom: 15px; }
-    
-    h1 { 
-        color: #ff6b81; 
-        margin: 0; 
-        font-size: 1.6rem; 
-        text-shadow: 1px 1px 0px #fff;
-    }
-    p.subtitle { color: #888; font-size: 0.9rem; margin-top: 8px; }
 
-    /* 題目卡片 */
-    .page { display: none; }
-    .page.active { display: block; animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    @keyframes popUp { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    /* --- 畫面切換 --- */
+    .app-view { display: none; width: 100%; flex: 1; animation: fadeIn 0.4s ease-out; }
+    .app-view.active { display: flex; flex-direction: column; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* --- 首頁 --- */
+    .header-center { text-align: center; margin-bottom: 30px; margin-top: 40px; }
+    .app-logo { 
+        width: 110px; height: 110px; border-radius: 28px; 
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1); margin-bottom: 15px; 
+        background: #fff; object-fit: cover;
+    }
+    h1 { color: #8e44ad; margin: 0; font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; }
+    p.subtitle { color: var(--text-sub); font-size: 1.1rem; margin-top: 5px; font-weight: bold; }
+
+    /* 連續練習徽章 */
+    .streak-badge {
+        background: #fff3e0; color: #e67e22;
+        display: inline-flex; align-items: center; justify-content: center;
+        padding: 8px 16px; border-radius: 20px;
+        font-weight: 800; font-size: 1rem;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(230, 126, 34, 0.2);
+    }
+
+    .unit-selector-container { margin-bottom: 10px; width: 100%; }
+    .unit-select {
+        width: 100%; padding: 15px;
+        font-size: 1.1rem; font-weight: bold; color: #555;
+        border: 2px solid #e1bee7; border-radius: 15px;
+        background: #fff; outline: none; appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a18cd1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat; background-position: right 15px center; background-size: 20px;
+    }
+
+    /* --- 按鈕系統 --- */
+    .btn-stack {
+        margin-top: 30px; 
+        display: flex; flex-direction: column; gap: 15px;
+        width: 100%; padding-bottom: 40px;
+    }
+
+    .btn {
+        display: flex; justify-content: center; align-items: center;
+        width: 100%; height: 60px; border-radius: var(--radius-btn);
+        border: none; font-size: 1.2rem; font-weight: bold; 
+        color: white; cursor: pointer; transition: transform 0.1s;
+        text-decoration: none; position: relative; overflow: hidden;
+        font-family: "Varela Round", sans-serif;
+    }
+    .btn:active { transform: scale(0.97); }
+    
+    .btn-purple { background: var(--btn-purple); box-shadow: var(--btn-shadow); }
+    .btn-grey { background: var(--btn-grey); color: #636e72; box-shadow: none; }
+    .btn-line { background: linear-gradient(90deg, #06C755 0%, #28d26f 100%); box-shadow: 0 4px 15px rgba(6, 199, 85, 0.3); }
+    .btn-retry-mistakes { background: var(--btn-orange); color: #d63031; box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4); }
+
+    /* --- 測驗區 --- */
+    .quiz-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .page-indicator { font-weight: bold; color: #a18cd1; font-size: 1.1rem; }
+    
+    .progress-track { background-color: #f0f0f0; border-radius: 10px; height: 8px; margin-bottom: 25px; overflow: hidden; width: 100%; }
+    .progress-fill { background: var(--btn-purple); height: 100%; width: 0%; transition: width 0.3s ease; }
+
+    .quiz-page { display: none; width: 100%; }
+    .quiz-page.active { display: block; animation: slideIn 0.3s ease-out; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
     .question-card { 
-        background: #fff; 
-        border: 2px solid #fff0f3; 
-        border-radius: 18px; 
-        padding: 20px; 
-        margin-bottom: 20px; 
-        box-shadow: 0 4px 12px rgba(255, 154, 158, 0.15);
+        background: #fff; border: 2px solid #f3e5f5; border-radius: 20px; 
+        padding: 25px 20px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.02);
     }
-    .q-type { 
-        display: inline-block;
-        background: #e0c3fc;
-        color: white;
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 0.75rem; 
-        font-weight: bold; 
-        margin-bottom: 10px; 
-    }
-    .q-text { font-weight: 700; font-size: 1.2em; margin-bottom: 15px; display: block; line-height: 1.5; color: #444; }
     
-    /* 選項樣式 */
-    label { 
-        display: flex; 
-        align-items: center; 
-        padding: 12px 15px; 
-        margin: 10px 0; 
-        cursor: pointer; 
-        border-radius: 15px; 
-        background: #f8f9fa; 
-        border: 2px solid transparent; 
-        transition: 0.2s; 
-        font-size: 0.95rem;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    /* 標籤與題號 */
+    .q-text { 
+        font-size: 1.3rem; font-weight: 800; color: #444; 
+        margin-bottom: 15px; line-height: 1.5; display: flex; align-items: center; flex-wrap: wrap;
     }
-    label:hover { background: #fff0f5; border-color: #ffc3a0; }
-    input[type="radio"] { margin-right: 12px; transform: scale(1.2); accent-color: #ff6b81; }
+    .q-num { color: #a18cd1; margin-right: 8px; }
+    
+    .chip {
+        display: inline-block; padding: 4px 12px; border-radius: 20px;
+        font-size: 0.85rem; font-weight: bold; color: white; margin-right: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .chip-spell { background: #74b9ff; } 
+    .chip-choice { background: #ff7675; }
 
-    /* 按鈕區 */
-    .nav-buttons { display: flex; gap: 15px; margin-top: 25px; }
-    .btn { 
-        flex: 1; 
-        padding: 15px; 
-        font-size: 1.1rem; 
-        border: none; 
-        border-radius: 50px; 
-        cursor: pointer; 
-        color: white; 
-        font-weight: bold; 
-        text-align: center;
-        transition: transform 0.1s, box-shadow 0.2s;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    .btn:active { transform: scale(0.95); }
-    .btn-next { background: linear-gradient(to right, #ff9a9e, #fad0c4); }
-    .btn-submit { background: linear-gradient(to right, #a18cd1, #fbc2eb); display: none; } 
-    
-    /* 結果頁 */
-    .correct { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; }
-    .wrong { background-color: #ffe5e5 !important; border-color: #ffcccc !important; color: #d63031; }
-    .answer-key { font-weight: bold; color: #ff6b81; margin-top: 10px; display: none; padding: 10px; background: #fff0f3; border-radius: 10px; }
+    .q-sub { font-size: 1rem; color: #888; font-weight: normal; margin-bottom: 20px; line-height: 1.5; }
 
-    #result-area { 
-        text-align: center; 
-        margin-top: 20px; 
-        padding: 30px 20px; 
-        background: #fff;
-        border-radius: 20px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        display: none; 
+    /* 關鍵：克漏字挖空樣式 (讓底線更明顯) */
+    .sentence-display {
+        font-size: 1.3rem; font-weight: 500; color: #2d3436; 
+        line-height: 1.8; margin-bottom: 15px;
     }
-    #score-text { font-size: 4em; font-weight: 800; color: #a18cd1; margin: 10px 0; text-shadow: 2px 2px 0px #eee; }
-    #comment { font-size: 1.2em; font-weight: bold; color: #666; margin-bottom: 5px; }
-    
-    /* 功能按鈕 */
-    .btn-group-vertical { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
-    
-    .btn-line { 
-        background-color: var(--btn-line); 
-        text-decoration: none; 
-        display: flex; align-items: center; justify-content: center; 
-        padding: 15px; border-radius: 15px; color: white; font-weight: bold; 
-    }
-    
-    .btn-wrong-list {
-        background-color: var(--btn-wrong);
-        text-decoration: none;
-        display: flex; align-items: center; justify-content: center;
-        padding: 15px; border-radius: 15px; color: white; font-weight: bold;
+    /* 提示字 (p_____) 的樣式 */
+    .cloze-hint {
+        color: #8e44ad; font-weight: 800; 
+        border-bottom: 2px solid #8e44ad; 
+        padding: 0 4px; letter-spacing: 1px;
     }
 
-    .btn-retry { 
-        background-color: #dfe6e9; color: #636e72; 
-        border-radius: 15px; padding: 15px; width: 100%; border:none; font-weight:bold; cursor: pointer;
+    /* 輸入框 */
+    .input-box {
+        width: 100%; padding: 14px; font-size: 1.2rem;
+        border: 2px solid #e1bee7; border-radius: 15px;
+        color: #555; background: #fff; outline: none; 
+        font-family: "Varela Round", monospace;
     }
+    .input-box:focus { border-color: #8e44ad; box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.1); }
 
-    /* 進度條 */
-    .progress-container { background-color: #f0f0f0; border-radius: 20px; height: 10px; margin-bottom: 15px; overflow: hidden; }
-    .progress-bar { background: linear-gradient(to right, #ff9a9e, #fecfef); height: 100%; width: 0%; transition: width 0.4s; }
-    .info-bar { display: flex; justify-content: space-between; color: #aaa; font-size: 0.85rem; margin-bottom: 20px; font-weight: bold; }
+    /* 選項按鈕 */
+    .option-btn {
+        display: flex; align-items: center; padding: 16px 15px; margin-bottom: 10px;
+        border: 2px solid transparent; border-radius: 15px;
+        background: #f8f9fa; cursor: pointer; width: 100%; transition: 0.2s;
+    }
+    .option-btn:hover { background: #f3e5f5; border-color: #e1bee7; }
+    .option-btn input { margin-right: 15px; transform: scale(1.3); accent-color: #8e44ad; }
+    .option-txt { font-size: 1.1rem; color: #555; font-weight: bold; }
+
+    /* --- 成績區 --- */
+    .score-circle {
+        width: auto; height: auto; 
+        background: transparent; border: none; box-shadow: none;
+        display: flex; justify-content: center; align-items: center;
+        margin: 60px auto 40px auto; 
+    }
+    .score-val { font-size: 7rem; font-weight: 900; color: #8e44ad; line-height: 1; font-family: "Varela Round", sans-serif; }
+
+    /* 難度標籤 */
+    .diff-badge { 
+        display: inline-flex; align-items: center; justify-content: center;
+        padding: 8px 20px; border-radius: 30px; font-size: 1rem; font-weight: bold;
+        color: white; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .d-easy { background: #55efc4; } .d-norm { background: #fdcb6e; } .d-hard { background: #ff7675; }
+
+    .mistake-container {
+        border: 2px dashed #ffcccc; border-radius: 20px; background: #fff5f7;
+        overflow: hidden; margin-bottom: 10px; display: none; text-align: left; padding: 15px; width: 100%;
+    }
+    .mistake-list { max-height: 180px; overflow-y: auto; padding: 0; margin: 0; list-style: none; }
+    .mistake-li { padding: 8px 0; border-bottom: 1px dashed #ffdbdb; font-size: 0.9rem; }
+    .m-word { font-weight: 700; color: #555; }
+    .m-wrong { color: #d63031; text-decoration: line-through; margin-right: 5px; }
+    .m-correct { color: #00b894; font-weight: 700; }
+
+    /* --- 歷史紀錄 --- */
+    .history-list { max-height: 450px; overflow-y: auto; width: 100%; }
+    .history-card {
+        background: #fff; border: 2px solid #f0f0f0; border-radius: 20px; padding: 15px; margin-bottom: 12px;
+    }
+    .h-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .h-date { font-size: 0.85rem; color: #aaa; font-weight: bold; }
+    .h-score { font-size: 1.4rem; font-weight: 900; color: #8e44ad; }
+    
+    .empty-state { text-align: center; color: #bbb; padding: 40px 0; font-weight: bold; }
+    .btn i-icon { margin-right: 8px; font-style: normal; }
 
 </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <h1>🌟 Mimi English 🌟</h1>
-        <p class="subtitle">Unit 5 & 6 單字大挑戰</p>
-        <p style="color: #ff6b81; font-size: 0.8rem; margin-top:5px; font-weight: bold;">⚠️ 寫完這頁才能去下一頁喔！</p>
-    </header>
-
-    <div class="progress-container">
-        <div class="progress-bar" id="progressBar"></div>
-    </div>
-    <div class="info-bar">
-        <span id="qCount">Ready? Go!</span>
-        <span id="pageIndicator">Page 1</span>
-    </div>
-
-    <form id="quizForm">
-        <div id="quiz-pages"></div>
-        
-        <div class="nav-buttons">
-            <button type="button" class="btn btn-next" id="btnNext" onclick="nextPage()">下一頁 ➡</button>
-            <button type="button" class="btn btn-submit" id="btnSubmit" onclick="submitQuiz()">交卷看成績 ✨</button>
+    
+    <div id="menu-screen" class="app-view active">
+        <div class="header-center">
+            <img src="icon.png" class="app-logo" alt="Logo" onerror="this.src='https://via.placeholder.com/120?text=App'">
+            <h1>Mimi English</h1>
+            <p class="subtitle">Unit 5 & 6</p>
         </div>
-    </form>
-
-    <div id="result-area">
-        <h2 style="margin:0; color:#888;">本次成績</h2>
-        <div id="score-text">0</div>
-        <p id="comment"></p>
-        <p id="date-display" style="color:#aaa; font-size:0.8rem; margin-bottom:20px;"></p>
         
-        <div class="btn-group-vertical">
-            <a id="line-share-btn" class="btn btn-line" target="_blank">
-                📝 繳交成績給老師 (Line)
-            </a>
+        <div style="text-align:center;">
+            <div id="streak-display" class="streak-badge">🔥 連續練習 0 天</div>
+        </div>
 
-            <a id="wrong-share-btn" class="btn btn-wrong-list" target="_blank" style="display:none;">
-                🍊 輸出錯誤題目 (Line)
+        <div class="unit-selector-container">
+            <select id="unit-selector" class="unit-select">
+                <option value="56">Unit 5 & 6</option>
+                <option value="78">Unit 7 & 8 (New!)</option>
+                <option value="all">全部複習 (All)</option>
+            </select>
+        </div>
+        
+        <div class="btn-stack">
+            <button class="btn btn-purple" onclick="startNewQuiz()"><i-icon>🚀</i-icon> 每日測驗</button>
+            <button class="btn btn-purple" onclick="showHistory()"><i-icon>📜</i-icon> 歷史紀錄</button>
+        </div>
+    </div>
+
+    <div id="quiz-screen" class="app-view">
+        <div class="quiz-info">
+            <div style="font-weight:bold; color:#444;">測驗進行中</div>
+            <div class="page-indicator" id="pageIndicator">1 / 6</div>
+        </div>
+
+        <div class="progress-track">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+
+        <form id="quizForm" autocomplete="off" style="flex:1; overflow-y:auto; padding-bottom: 20px;">
+            <div id="quiz-pages"></div>
+        </form>
+        
+        <div class="btn-stack">
+            <button type="button" class="btn btn-purple" id="btnNext" onclick="nextPage()">下一頁 ➡</button>
+            <button type="button" class="btn btn-purple" id="btnSubmit" onclick="submitQuiz()" style="display:none;">交卷 ✨</button>
+            <button class="btn btn-grey" onclick="goHome()">🏠 暫停並回首頁</button>
+        </div>
+    </div>
+
+    <div id="score-screen" class="app-view">
+        <div class="header-center" style="margin-top:0;">
+            <h1 style="font-size:1.5rem;">測驗成績</h1>
+        </div>
+        
+        <div class="score-circle">
+            <div class="score-val" id="score-text">0</div>
+        </div>
+        
+        <div style="text-align:center; margin-bottom:10px; margin-top: 10px;">
+            <div id="score-difficulty" class="diff-badge d-norm">難度：適中</div>
+            <p id="comment" style="color:#555; font-weight:bold; font-size: 1.1rem; margin-top:15px;"></p>
+        </div>
+
+        <div class="mistake-container" id="mistake-area">
+            <div style="font-weight:bold; color:#d63031; margin-bottom:10px; text-align:center;">🍊 錯題檢討</div>
+            <ul class="mistake-list" id="mistake-list"></ul>
+        </div>
+        
+        <div class="btn-stack" style="padding-top:0;">
+            <button id="btn-retry-mistakes" class="btn btn-retry-mistakes" style="display:none;" onclick="startRetryQuiz()">
+                <i-icon>💪</i-icon> 只考錯題 (訂正)
+            </button>
+
+            <a id="line-share-btn" class="btn btn-line" target="_blank">
+                <i-icon>📝</i-icon> 分享成績 (Line)
             </a>
             
-            <button class="btn btn-retry" onclick="location.reload()">🔄 重新整理再考一次</button>
+            <a id="wrong-share-btn" class="btn" style="background:#ff9f43; display:none;" target="_blank">
+                <i-icon>🍊</i-icon> 匯出錯題 (Line)
+            </a>
+
+            <button class="btn btn-purple" onclick="startNewQuiz()"><i-icon>🔄</i-icon> 全部重考</button>
+            <button class="btn btn-grey" onclick="goHome()"><i-icon>🏠</i-icon> 回主選單</button>
         </div>
     </div>
+
+    <div id="history-screen" class="app-view">
+        <div class="quiz-info">
+            <div style="font-weight:bold; font-size:1.2rem;">📜 歷史紀錄</div>
+            <button class="btn btn-grey" onclick="goHome()" style="width:auto; height:40px; font-size:0.9rem; padding:0 15px;">關閉</button>
+        </div>
+        
+        <div class="history-list" id="history-list-container"></div>
+    </div>
+
 </div>
 
 <script>
-    // 完整的單字庫
-    const rawData = [
-        { w: "public", c: "公眾(的)", s: "This is a ______ park." },
-        { w: "play", c: "扮演", s: "He will ______ the king." },
-        { w: "uniform", c: "制服", s: "Wear your school ______." },
-        { w: "bottom", c: "臀部；底部", s: "At the ______ of the page." },
-        { w: "tail", c: "尾巴", s: "The dog has a short ______." },
-        { w: "pin", c: "飾針；胸針", s: "A lovely ______ on the coat." },
-        { w: "bow", c: "蝴蝶結", s: "She wears a ______." },
-        { w: "dot", c: "圓點", s: "A dress with polka ______s." },
-        { w: "round", c: "圓形的", s: "The ball is ______." },
-        { w: "square", c: "正方形(的)", s: "A ______ box." },
-        { w: "string", c: "串；線", s: "Tie with a ______." },
-        { w: "line", c: "隊伍；直線", s: "Stand in a ______." },
-        { w: "arrive", c: "抵達", s: "We will ______ soon." },
-        { w: "appear", c: "出現", s: "Stars ______ at night." },
-        { w: "notice", c: "注意到", s: "Did you ______ him?" },
-        { w: "lead", c: "通往", s: "Roads ______ to Rome." },
-        { w: "restroom", c: "洗手間", s: "Go to the ______." },
-        { w: "bath", c: "沐浴", s: "Take a hot ______." },
-        { w: "neighbor", c: "鄰居", s: "My ______ is kind." },
-        { w: "foreigner", c: "外國人", s: "He is a ______." },
-        { w: "business", c: "生意", s: "Do ______ with them." },
-        { w: "businessman", c: "商人", s: "He is a rich ______." },
-        { w: "workbook", c: "作業本", s: "Open your ______." },
-        { w: "exercise", c: "練習", s: "Do some math ______." },
-        { w: "hobby", c: "嗜好", s: "My ______ is reading." },
-        { w: "born", c: "出生的", s: "I was ______ in 2010." },
-        { w: "light", c: "輕的", s: "This bag is ______." },
-        { w: "prize", c: "獎", s: "Win a big ______." },
-        { w: "main", c: "主要的", s: "The ______ idea." },
-        { w: "topic", c: "主題", s: "Today's ______." },
-        { w: "belong", c: "屬於", s: "It ______s to me." },
-        { w: "key", c: "關鍵(的)", s: "The ______ to success." },
-        { w: "knowledge", c: "知識", s: "Books give ______." },
-        { w: "dictionary", c: "字典", s: "Use a ______." },
-        { w: "planet", c: "行星", s: "Earth is a ______." },
-        { w: "go on", c: "發生", s: "What is ______ing ______?" },
-        { w: "be no stranger to", c: "對...不陌生", s: "He ______ hard work." },
-        { w: "town", c: "城鎮", s: "A small ______." },
-        { w: "visitor", c: "遊客", s: "Many ______s came." },
-        { w: "invite", c: "邀請", s: "I will ______ you." },
-        { w: "apartment", c: "公寓", s: "Live in an ______." },
-        { w: "sidewalk", c: "人行道", s: "Walk on the ______." },
-        { w: "side", c: "邊；面", s: "The other ______." },
-        { w: "blind", c: "盲的", s: "Help the ______ man." },
-        { w: "seat", c: "座位", s: "Take a ______." },
-        { w: "beside", c: "在...旁邊", s: "Sit ______ me." },
-        { w: "except", c: "除了", s: "Everyone ______ me." },
-        { w: "perhaps", c: "或許", s: "______ it will rain." },
-        { w: "joke", c: "玩笑", s: "Tell a ______." },
-        { w: "April Fools' Day", c: "愚人節", s: "It's ______." },
-        { w: "present", c: "禮物", s: "A birthday ______." },
-        { w: "kiss", c: "吻", s: "Give a ______." },
-        { w: "serious", c: "認真的", s: "Why so ______?" },
-        { w: "lazy", c: "懶惰的", s: "Don't be ______." },
-        { w: "rich", c: "富有的", s: "A ______ man." },
-        { w: "glad", c: "高興的", s: "I am ______." },
-        { w: "polite", c: "有禮貌的", s: "Be ______ to others." },
-        { w: "blank", c: "空白(的)", s: "Fill in the ______." },
-        { w: "paper", c: "紙", s: "A piece of ______." },
-        { w: "tape", c: "膠帶", s: "Use ______ to stick." },
-        { w: "rise", c: "升起", s: "Sun ______s in east." },
-        { w: "smoke", c: "煙", s: "Fire makes ______." },
-        { w: "heat", c: "熱", s: "Feel the ______." },
-        { w: "cover", c: "覆蓋", s: "______ your mouth." },
-        { w: "mud", c: "泥土", s: "Shoes full of ______." },
-        { w: "spell", c: "咒語", s: "Cast a ______." },
-        { w: "lie", c: "躺", s: "______ down." },
-        { w: "ahead", c: "在前方", s: "Go ______." },
-        { w: "somewhere", c: "某處", s: "It is ______ here." },
-        { w: "draw", c: "提款", s: "______ money." },
-        { w: "used to", c: "過去時常", s: "I ______ play here." },
-        { w: "have bigger fish to fry", c: "有更重要的事", s: "I ______." }
+    /* ----------------------------------------------------
+       DATA SETS - 題庫
+    ---------------------------------------------------- */
+    
+    // Unit 5 & 6 (現有資料)
+    const data_unit56 = [
+        { w: "public", c: "公眾(的)", s: "The library is a ______ building, so anyone can go inside to read." },
+        { w: "play", c: "扮演", s: "In the school drama, he was chosen to ______ the role of the ancient king." },
+        { w: "uniform", c: "制服", s: "All the players wore the same red and white ______ to show they were on the same team." },
+        { w: "bottom", c: "臀部；底部", s: "Please sign your name at the very ______ of the document." },
+        { w: "tail", c: "尾巴", s: "The happy dog wagged its ______ when its owner came home." },
+        { w: "pin", c: "飾針；胸針", s: "She attached the name tag to her shirt with a small safety ______." },
+        { w: "bow", c: "蝴蝶結", s: "She tied a beautiful red ______ around the birthday gift." },
+        { w: "dot", c: "圓點", s: "The end of a sentence is marked by a small ______." },
+        { w: "round", c: "圓形的", s: "The moon looks completely ______ when it is full." },
+        { w: "square", c: "正方形(的)", s: "A ______ has four equal sides and four corners." },
+        { w: "string", c: "串；線", s: "I need a piece of ______ to tie this package together." },
+        { w: "line", c: "隊伍；直線", s: "The students stood in a straight ______ waiting for the bus." },
+        { w: "arrive", c: "抵達", s: "We expect the train to ______ at the station at 5:00 PM." },
+        { w: "appear", c: "出現", s: "As the clouds moved away, the sun began to ______." },
+        { w: "notice", c: "注意到", s: "Did you ______ that he got a new haircut today?" },
+        { w: "lead", c: "通往", s: "This path will ______ you directly to the river." },
+        { w: "restroom", c: "洗手間", s: "Excuse me, could you tell me where the ______ is?" },
+        { w: "bath", c: "沐浴", s: "After a long day, she likes to take a warm ______ to relax." },
+        { w: "neighbor", c: "鄰居", s: "Our ______ is very kind and often helps us watch our dog." },
+        { w: "foreigner", c: "外國人", s: "Since he didn't speak the local language, they knew he was a ______." },
+        { w: "business", c: "生意", s: "My uncle travels to Japan often to do ______ with a large company." },
+        { w: "businessman", c: "商人", s: "The wealthy ______ owns several shops in the city." },
+        { w: "workbook", c: "作業本", s: "Please complete page 10 in your English ______ for homework." },
+        { w: "exercise", c: "練習", s: "You should ______ regularly to keep your body healthy and strong." },
+        { w: "hobby", c: "嗜好", s: "Collecting stamps is a popular ______ for many people." },
+        { w: "born", c: "出生的", s: "She was ______ in a small town but moved to the city later." },
+        { w: "light", c: "輕的", s: "This feather is very ______; the wind can blow it away easily." },
+        { w: "prize", c: "獎", s: "He won the first ______ in the science competition." },
+        { w: "main", c: "主要的", s: "The ______ reason for his visit was to see his family." },
+        { w: "topic", c: "主題", s: "The ______ of today's meeting is how to save energy." },
+        { w: "belong", c: "屬於", s: "Does this blue jacket ______ to you or your brother?" },
+        { w: "key", c: "關鍵(的)", s: "Patience is the ______ to solving this difficult puzzle." },
+        { w: "knowledge", c: "知識", s: "Reading books is the best way to gain new ______ about the world." },
+        { w: "dictionary", c: "字典", s: "If you don't know the meaning of this word, look it up in a ______." },
+        { w: "planet", c: "行星", s: "Jupiter is the largest ______ in our solar system." },
+        { w: "go on", c: "發生", s: "I heard a loud noise and wondered what was ______ing ______ outside." },
+        { w: "be no stranger to", c: "對...不陌生", s: "As a chef, he ______ hard work in the kitchen." },
+        { w: "town", c: "城鎮", s: "We live in a quiet ______ where everyone knows each other." },
+        { w: "visitor", c: "遊客", s: "The museum welcomes every ______ with a free map." },
+        { w: "invite", c: "邀請", s: "I want to ______ all my friends to my birthday party." },
+        { w: "apartment", c: "公寓", s: "They live in a small ______ on the fifth floor." },
+        { w: "sidewalk", c: "人行道", s: "Pedestrians must walk on the ______ to stay safe from cars." },
+        { w: "side", c: "邊；面", s: "Please write your name on the other ______ of the paper." },
+        { w: "blind", c: "盲的", s: "The guide dog helps the ______ man cross the street safely." },
+        { w: "seat", c: "座位", s: "The bus was full, so I gave my ______ to an elderly lady." },
+        { w: "beside", c: "在...旁邊", s: "Come and sit ______ me so we can talk." },
+        { w: "except", c: "除了", s: "Everyone passed the test ______ for John, who was sick." },
+        { w: "perhaps", c: "或許", s: "______ it will rain later, so you should take an umbrella." },
+        { w: "joke", c: "玩笑", s: "He told a funny ______ that made everyone laugh." },
+        { w: "April Fools' Day", c: "愚人節", s: "On ______, people often play tricks and jokes on each other." },
+        { w: "present", c: "禮物", s: "She gave him a watch as a birthday ______." },
+        { w: "kiss", c: "吻", s: "The mother gave her baby a gentle ______ on the forehead." },
+        { w: "serious", c: "認真的", s: "You need to be ______ about your studies if you want to pass." },
+        { w: "lazy", c: "懶惰的", s: "Don't be ______; get up and help with the housework." },
+        { w: "rich", c: "富有的", s: "The ______ man donated a lot of money to charity." },
+        { w: "glad", c: "高興的", s: "I am very ______ to meet you finally." },
+        { w: "polite", c: "有禮貌的", s: "It is ______ to say 'please' and 'thank you' when asking for help." },
+        { w: "blank", c: "空白(的)", s: "Fill in the ______ space with your name." },
+        { w: "paper", c: "紙", s: "She wrote a letter on a piece of white ______." },
+        { w: "tape", c: "膠帶", s: "Use some ______ to fix the torn page of the book." },
+        { w: "rise", c: "升起", s: "We woke up early to watch the sun ______ over the mountains." },
+        { w: "smoke", c: "煙", s: "Where there is ______, there is usually fire." },
+        { w: "heat", c: "熱", s: "I can't stand the summer ______; I need air conditioning." },
+        { w: "cover", c: "覆蓋", s: "Please ______ your mouth when you cough to stop germs." },
+        { w: "mud", c: "泥土", s: "After the rain, the field was full of sticky ______." },
+        { w: "spell", c: "咒語", s: "In the story, the witch cast a magic ______ on the prince." },
+        { w: "lie", c: "躺", s: "I'm tired, so I'm going to ______ down on the sofa." },
+        { w: "ahead", c: "在前方", s: "Look ______! There is a car stopping in front of us." },
+        { w: "somewhere", c: "某處", s: "I lost my keys ______ in the house, but I can't find them." },
+        { w: "draw", c: "提款", s: "He went to the bank to ______ some cash for the weekend." },
+        { w: "used to", c: "過去時常", s: "I ______ play soccer every day, but now I'm too busy." },
+        { w: "have bigger fish to fry", c: "有更重要的事", s: "I can't worry about this small problem; I ______." }
     ];
 
+    // Unit 7 & 8 (範例資料)
+    const data_unit78 = [
+        { w: "example", c: "範例", s: "This is just an ______." },
+        { w: "future", c: "未來", s: "In the ______, cars might fly." },
+        { w: "dream", c: "夢想", s: "My ______ is to become a doctor." }
+    ];
+
+    /* --- 全域變數 --- */
     const TOTAL_QUESTIONS = 55;
-    const QUESTIONS_PER_PAGE = 5;
-    
+    const QUESTIONS_PER_PAGE = 10; 
     let currentQuizData = [];
     let currentPage = 1;
     let totalPages = 1;
+    let currentSpellingCount = 0;
+    let startTime = null;
+    let retryPool = []; 
 
+    /* --- 1. 每日挑戰邏輯 --- */
+    function checkStreak() {
+        let lastDate = localStorage.getItem('mimi_last_date');
+        let streak = parseInt(localStorage.getItem('mimi_streak') || 0);
+        document.getElementById('streak-display').innerText = `🔥 連續練習 ${streak} 天`;
+    }
+
+    function updateStreak() {
+        let today = new Date().toDateString();
+        let lastDate = localStorage.getItem('mimi_last_date');
+        let streak = parseInt(localStorage.getItem('mimi_streak') || 0);
+
+        if (lastDate !== today) {
+            let yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            if (lastDate === yesterday.toDateString()) {
+                streak++;
+            } else {
+                streak = 1;
+            }
+            localStorage.setItem('mimi_last_date', today);
+            localStorage.setItem('mimi_streak', streak);
+        }
+    }
+    checkStreak();
+
+    /* --- 2. 畫面切換 --- */
+    function showScreen(screenId) {
+        document.querySelectorAll('.app-view').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0,0);
+        if(screenId === 'menu-screen') checkStreak();
+    }
+    function goHome() { showScreen('menu-screen'); }
+
+    /* --- 3. 測驗核心邏輯 --- */
     function shuffle(array) {
         let currentIndex = array.length, randomIndex;
         while (currentIndex != 0) {
@@ -303,56 +459,98 @@
         return array;
     }
 
-    function initQuiz() {
-        let pool = shuffle([...rawData]);
-        while (pool.length < TOTAL_QUESTIONS) {
-            pool = pool.concat(shuffle([...rawData]));
-        }
-        pool = pool.slice(0, TOTAL_QUESTIONS);
+    function startNewQuiz() {
+        let selection = document.getElementById('unit-selector').value;
+        let sourceData = [];
+        if (selection === '56') sourceData = [...data_unit56];
+        else if (selection === '78') sourceData = [...data_unit78];
+        else sourceData = [...data_unit56, ...data_unit78];
 
-        currentQuizData = pool.map((item, index) => {
-            let type = Math.floor(Math.random() * 3);
-            if (!item.s) type = Math.floor(Math.random() * 2);
+        generateQuiz(shuffle(sourceData));
+    }
 
-            let qObj = { 
-                id: index + 1, 
-                correct: null, 
-                options: [], 
-                typeText: "", 
-                questionText: "",
-                wordPair: `${item.w} = ${item.c}`
-            };
+    function startRetryQuiz() {
+        if(retryPool.length === 0) return;
+        generateQuiz(shuffle([...retryPool]));
+    }
+
+    function generateQuiz(sourceArray) {
+        startTime = new Date(); 
+        retryPool = [];
+        let quizPool = sourceArray.length > TOTAL_QUESTIONS ? sourceArray.slice(0, TOTAL_QUESTIONS) : sourceArray;
+        currentSpellingCount = 0;
+
+        currentQuizData = quizPool.map((item, index) => {
+            let rand = Math.random();
+            let type;
+            // 60% 拼字(克漏字)，40% 選擇
+            if (rand < 0.6) {
+                type = 0; 
+                currentSpellingCount++;
+            } else {
+                type = Math.random() < 0.5 ? 1 : 2;
+            }
             
+            let qNum = index + 1;
+
+            let qObj = {
+                id: index + 1,
+                type: type,
+                correct: item.w,
+                correctDisplay: item.w,
+                options: [],
+                qTitle: "", 
+                qContent: "",
+                wordPair: `${item.w} = ${item.c}`,
+                rawItem: item
+            };
+
             let distractors = [];
+            let fullPool = [...data_unit56, ...data_unit78];
             while(distractors.length < 3) {
-                let r = rawData[Math.floor(Math.random() * rawData.length)];
-                if (r.w !== item.w && !distractors.includes(r)) distractors.push(r);
+                let r = fullPool[Math.floor(Math.random() * fullPool.length)];
+                if (r && r.w !== item.w && !distractors.includes(r)) distractors.push(r);
             }
 
-            if (type === 0) { 
-                qObj.typeText = "中選英";
-                qObj.questionText = `<b>${item.c}</b> 的英文是？`;
-                qObj.correct = item.w;
+            if (type === 0) { // Spelling (Cloze Mode)
+                // 1. 產生提示字：首字 + 底線
+                let firstLetter = item.w.charAt(0);
+                let restLength = Math.max(0, item.w.length - 1);
+                let hintMask = firstLetter + "_".repeat(restLength); // p_____
+
+                // 2. *** 關鍵修正：智慧填入提示字 ***
+                let sentence = item.s;
+                
+                // 如果句子本來就有底線 (______), 把底線換成 hintMask
+                if (sentence.includes("______")) {
+                    sentence = sentence.replace(/______/g, `<span class='cloze-hint'>${hintMask}</span>`);
+                } 
+                // 如果句子是完整的單字，則把單字換成 hintMask (不分大小寫)
+                else {
+                    sentence = sentence.replace(new RegExp(item.w, "ig"), `<span class='cloze-hint'>${hintMask}</span>`);
+                }
+
+                qObj.qTitle = `<span class="q-num">Q${qNum}.</span> <span class="chip chip-spell">拼字</span>`;
+                // 只顯示英文句子
+                qObj.qContent = `<div class="sentence-display">${sentence}</div>`;
+            } else if (type === 1) { // Choice C->E
+                qObj.qTitle = `<span class="q-num">Q${qNum}.</span> <span class="chip chip-choice">選擇</span>`;
+                qObj.qContent = `<div style="font-size:1.2rem; font-weight:bold;">${item.c}</div><div style="font-size:0.9rem; color:#888; margin-top:5px;">請選出正確的英文單字</div>`;
                 qObj.options = shuffle([item.w, ...distractors.map(d => d.w)]);
-            } else if (type === 1) { 
-                qObj.typeText = "英選中";
-                qObj.questionText = `<b>${item.w}</b> 的中文是？`;
-                qObj.correct = item.c;
+            } else { // Choice E->C
+                qObj.qTitle = `<span class="q-num">Q${qNum}.</span> <span class="chip chip-choice">選擇</span>`;
+                qObj.qContent = `<div style="font-size:1.2rem; font-weight:bold;">${item.w}</div><div style="font-size:0.9rem; color:#888; margin-top:5px;">請選出中文意思</div>`;
+                qObj.correctDisplay = item.c;
                 qObj.options = shuffle([item.c, ...distractors.map(d => d.c)]);
-            } else { 
-                qObj.typeText = "填空";
-                let mask = item.s.replace(new RegExp(item.w, "ig"), "______");
-                if(item.w.includes(" ")) mask = item.s.replace(item.w, "______");
-                qObj.questionText = `${mask} <br><small style='color:#aaa; font-weight:normal;'>(${item.c})</small>`;
-                qObj.correct = item.w;
-                qObj.options = shuffle([item.w, ...distractors.map(d => d.w)]);
             }
             return qObj;
         });
 
-        totalPages = Math.ceil(TOTAL_QUESTIONS / QUESTIONS_PER_PAGE);
+        currentPage = 1;
+        totalPages = Math.ceil(currentQuizData.length / QUESTIONS_PER_PAGE);
         renderPages();
         updateUI();
+        showScreen('quiz-screen');
     }
 
     function renderPages() {
@@ -360,25 +558,38 @@
         let html = "";
         for (let p = 1; p <= totalPages; p++) {
             let active = (p === 1) ? "active" : "";
-            html += `<div class="page ${active}" id="page-${p}">`;
+            html += `<div class="quiz-page ${active}" id="page-${p}">`;
             let start = (p - 1) * QUESTIONS_PER_PAGE;
             let end = Math.min(start + QUESTIONS_PER_PAGE, currentQuizData.length);
+            
             for (let i = start; i < end; i++) {
                 let q = currentQuizData[i];
+                let inputHtml = "";
+                
+                if (q.type === 0) {
+                    inputHtml = `<input type="text" class="input-box" id="input-${q.id}" placeholder="請輸入單字..." autocomplete="off" spellcheck="false">`;
+                } else {
+                    q.options.forEach(opt => {
+                        inputHtml += `
+                        <label class="option-btn">
+                            <input type="radio" name="q${q.id}" value="${opt}">
+                            <span class="option-txt">${opt}</span>
+                        </label>`;
+                    });
+                }
+
                 html += `
-                <div class="question-card" id="q-${q.id}" data-correct="${q.correct}" data-pair="${q.wordPair}">
-                    <div class="q-type">${q.typeText}</div>
-                    <span class="q-text">${q.id}. ${q.questionText}</span>
-                    <div class="options">
-                        ${q.options.map(opt => `<label><input type="radio" name="q${q.id}" value="${opt}"> ${opt}</label>`).join('')}
+                <div class="question-card">
+                    <div class="q-text" style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>${q.qTitle}</div>
                     </div>
-                    <div class="answer-key">💡 正解: ${q.correct}</div>
+                    <div class="q-sub" style="margin-top:10px;">${q.qContent}</div>
+                    <div>${inputHtml}</div>
                 </div>`;
             }
             html += `</div>`;
         }
         container.innerHTML = html;
-        document.getElementById('qCount').innerText = `已寫: 0/${TOTAL_QUESTIONS}`;
     }
 
     function nextPage() {
@@ -392,90 +603,165 @@
     function updateUI() {
         let pct = (currentPage / totalPages) * 100;
         document.getElementById('progressBar').style.width = `${pct}%`;
-        document.getElementById('pageIndicator').innerText = `Page ${currentPage} / ${totalPages}`;
+        document.getElementById('pageIndicator').innerText = `${currentPage} / ${totalPages}`;
 
         const btnNext = document.getElementById('btnNext');
         const btnSubmit = document.getElementById('btnSubmit');
 
         if (currentPage === totalPages) {
             btnNext.style.display = 'none';
-            btnSubmit.style.display = 'block';
+            btnSubmit.style.display = 'flex';
         } else {
-            btnNext.style.display = 'block';
+            btnNext.style.display = 'flex';
             btnSubmit.style.display = 'none';
         }
-        
-        const ans = document.querySelectorAll('input[type="radio"]:checked').length;
-        document.getElementById('qCount').innerText = `已寫: ${ans}/${TOTAL_QUESTIONS}`;
     }
 
-    document.addEventListener('change', (e) => { if(e.target.type === 'radio') updateUI(); });
-
     function submitQuiz() {
-        let correctCount = 0;
-        let wrongItems = []; 
+        const endTime = new Date();
+        const durationSec = Math.floor((endTime - startTime) / 1000);
+        const mm = Math.floor(durationSec / 60);
+        const ss = durationSec % 60;
+        const timeStr = `${mm}min ${ss}s`;
 
-        document.querySelectorAll('.page').forEach(p => p.style.display = 'block');
-        document.querySelector('.nav-buttons').style.display = 'none';
-        document.querySelector('.progress-container').style.display = 'none';
-        document.querySelector('header').style.display = 'none';
+        let correctCount = 0;
+        let wrongItems = [];
+        let mistakeHtml = "";
 
         currentQuizData.forEach(q => {
-            const card = document.getElementById(`q-${q.id}`);
-            const sel = document.querySelector(`input[name="q${q.id}"]:checked`);
-            const key = card.querySelector('.answer-key');
-            const wordPair = card.getAttribute('data-pair');
-            
-            card.querySelectorAll('label').forEach(l => l.classList.remove('correct', 'wrong'));
-            
-            if (sel) {
-                if (sel.value === q.correct) {
-                    correctCount++;
-                    sel.parentElement.classList.add('correct');
-                } else {
-                    sel.parentElement.classList.add('wrong');
-                    wrongItems.push(wordPair);
-                    card.querySelectorAll('input').forEach(i => { if(i.value === q.correct) i.parentElement.classList.add('correct'); });
-                }
+            let isCorrect = false;
+            let userVal = "";
+            let correctVal = "";
+
+            if (q.type === 0) {
+                let el = document.getElementById(`input-${q.id}`);
+                userVal = el ? el.value.trim() : "";
+                correctVal = q.correct;
+                if (userVal.toLowerCase() === correctVal.toLowerCase()) isCorrect = true;
             } else {
-                card.style.border = "2px dashed #ff6b81"; 
-                key.style.display = 'block';
-                wrongItems.push(wordPair);
+                let el = document.querySelector(`input[name="q${q.id}"]:checked`);
+                userVal = el ? el.value : "(未選)";
+                correctVal = q.type === 1 ? q.correct : q.correctDisplay;
+                if (userVal === correctVal) isCorrect = true;
             }
-            if (!sel || sel.value !== q.correct) key.style.display = 'block';
+
+            if (isCorrect) {
+                correctCount++;
+            } else {
+                if(q.rawItem) retryPool.push(q.rawItem);
+                wrongItems.push({ q: q.wordPair, user: userVal, right: correctVal });
+                mistakeHtml += `
+                <li class="mistake-li">
+                    <div class="m-word">${q.wordPair}</div>
+                    <div class="m-ans">
+                        <span class="m-wrong">${userVal}</span> 
+                        <span class="m-correct">${correctVal}</span>
+                    </div>
+                </li>`;
+            }
         });
 
-        let finalScore = Math.round((correctCount / TOTAL_QUESTIONS) * 100);
-        
+        let finalScore = Math.round((correctCount / currentQuizData.length) * 100);
         const today = new Date();
         const dateStr = `${today.getFullYear()}/${today.getMonth()+1}/${today.getDate()}`;
 
-        const resultArea = document.getElementById('result-area');
-        resultArea.style.display = 'block';
+        // 難度計算
+        let diffLabel = "難度：適中";
+        let diffClass = "d-norm";
+        let spellPct = (currentSpellingCount / currentQuizData.length) * 100;
+        if (spellPct > 45) { diffLabel = "難度：困難"; diffClass = "d-hard"; }
+        else if (spellPct < 25) { diffLabel = "難度：簡單"; diffClass = "d-easy"; }
+
         document.getElementById('score-text').innerText = finalScore;
-        document.getElementById('comment').innerText = `答對：${correctCount} / ${TOTAL_QUESTIONS} 題`;
-        document.getElementById('date-display').innerText = `測驗日期：${dateStr}`;
+        const diffEl = document.getElementById('score-difficulty');
+        diffEl.className = `diff-badge ${diffClass}`;
+        diffEl.innerText = diffLabel;
 
-        const shareTextScore = `【Unit 5&6 成績回報】\n日期：${dateStr}\n得分：${finalScore} 分\n答對：${correctCount} / ${TOTAL_QUESTIONS}\n老師，這是我今天的練習成績！`;
-        document.getElementById('line-share-btn').href = `https://line.me/R/msg/text/?${encodeURIComponent(shareTextScore)}`;
-
+        document.getElementById('comment').innerText = `答對：${correctCount} / ${currentQuizData.length} 題`;
+        
+        const mistakeArea = document.getElementById('mistake-area');
         const wrongBtn = document.getElementById('wrong-share-btn');
+        const retryBtn = document.getElementById('btn-retry-mistakes');
+        
         if (wrongItems.length > 0) {
+            mistakeArea.style.display = 'block';
             wrongBtn.style.display = 'flex';
-            let wrongTextList = `【錯題訂正】(${dateStr})\n請將這些單字抄在筆記本上：\n`;
+            retryBtn.style.display = 'flex'; 
+            retryBtn.innerHTML = `<i-icon>💪</i-icon> 只考錯題 (${wrongItems.length}題)`;
+            
+            document.getElementById('mistake-list').innerHTML = mistakeHtml;
+            
+            let wrongTextList = `【錯題清單】(${dateStr})\n請抄寫訂正：\n`;
             wrongItems.forEach((item, index) => {
-                wrongTextList += `${index + 1}. ${item}\n`;
+                wrongTextList += `${index + 1}. ${item.q}\n`;
             });
             wrongBtn.href = `https://line.me/R/msg/text/?${encodeURIComponent(wrongTextList)}`;
-        } else {
-            wrongBtn.style.display = 'none';
-            document.getElementById('comment').innerText += " (太強了！全對！)";
-        }
 
-        window.scrollTo(0, 0);
+        } else {
+            mistakeArea.style.display = 'none';
+            wrongBtn.style.display = 'none';
+            retryBtn.style.display = 'none';
+            document.getElementById('comment').innerText += " (太棒了！全對！)";
+        }
+        
+        const shareTextScore = `【Unit 5&6 成績回報】\n日期：${dateStr}\n測驗時間：${timeStr}\n難度：${diffLabel}\n得分：${finalScore} 分\n答對：${correctCount} / ${currentQuizData.length}\n老師，這是我今天的練習成績！`;
+        document.getElementById('line-share-btn').href = `https://line.me/R/msg/text/?${encodeURIComponent(shareTextScore)}`;
+
+        saveHistory(dateStr, finalScore, wrongItems, diffLabel, diffClass);
+        updateStreak();
+        showScreen('score-screen');
     }
 
-    initQuiz();
+    function saveHistory(date, score, wrongList, diffLabel, diffClass) {
+        let history = JSON.parse(localStorage.getItem('mimi_history_final_v5') || '[]');
+        let newRecord = { date, score, wrongs: wrongList, diffLabel, diffClass };
+        history.unshift(newRecord);
+        if(history.length > 50) history.pop();
+        localStorage.setItem('mimi_history_final_v5', JSON.stringify(history));
+    }
+
+    function showHistory() {
+        let history = JSON.parse(localStorage.getItem('mimi_history_final_v5') || '[]');
+        let container = document.getElementById('history-list-container');
+        
+        if (history.length === 0) {
+            container.innerHTML = '<div class="empty-state">尚無測驗紀錄<br>Go Start!</div>';
+        } else {
+            let html = "";
+            history.forEach((rec) => {
+                let dLabel = rec.diffLabel || "難度：適中";
+                let dClass = rec.diffClass || "d-norm"; 
+
+                let wrongsHtml = "";
+                if (rec.wrongs && rec.wrongs.length > 0) {
+                    wrongsHtml = `<details><summary>查看 ${rec.wrongs.length} 題錯題</summary>`;
+                    rec.wrongs.forEach(w => {
+                        wrongsHtml += `<div style="font-size:0.85rem; padding:6px 0; border-bottom:1px dashed #eee;">
+                            <strong style="color:#555;">${w.q}</strong><br>
+                            <span style="color:#ff7675; text-decoration:line-through;">${w.user}</span> 
+                            <span style="color:#00b894;">${w.right}</span>
+                        </div>`;
+                    });
+                    wrongsHtml += `</details>`;
+                } else {
+                    wrongsHtml = `<div style="color:#00b894; font-size:0.85rem; margin-top:5px; font-weight:bold;">✨ Perfect!</div>`;
+                }
+
+                html += `
+                <div class="history-card">
+                    <div class="h-top">
+                        <span class="h-date">${rec.date}</span>
+                        <span class="diff-badge ${dClass}" style="margin:0; font-size:0.7rem; box-shadow:none; padding:3px 10px;">${dLabel}</span>
+                    </div>
+                    <div class="h-score">${rec.score} 分</div>
+                    ${wrongsHtml}
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+        showScreen('history-screen');
+    }
+
 </script>
 
 </body>
